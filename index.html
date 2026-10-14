@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7f6f0">
+<title>Pack Smart｜出門不漏帶</title>
+<style>
+:root {
+  --cream: #f7f6f0;
+  --paper: #fffefa;
+  --sage: #819783;
+  --sage-dark: #526b57;
+  --sage-light: #e8eee6;
+  --ink: #343a36;
+  --muted: #747b74;
+  --line: #e3e5dc;
+  --danger: #a64d45;
+  --shadow: 0 10px 30px rgba(45, 57, 45, .055);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--cream); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  line-height: 1.55;
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid #b5c8b3; outline-offset: 2px;
+}
+.page { max-width: 1120px; padding: 30px 22px 56px; margin: 0 auto; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px;
+  background: var(--sage-light); color: var(--sage-dark); font-size: 22px;
+}
+.brand-name { font-size: 16px; font-weight: 750; letter-spacing: .02em; }
+.brand-sub { color: var(--muted); font-size: 12px; }
+.local-note { color: var(--muted); font-size: 12px; }
+.hero { margin: 28px 0 24px; }
+.eyebrow { color: var(--sage-dark); font-size: 12px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+h1 { font-size: clamp(30px, 5vw, 45px); line-height: 1.2; letter-spacing: -.04em; margin: 9px 0 12px; }
+.hero p { color: var(--muted); max-width: 620px; margin: 0; }
+.layout { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 22px; align-items: start; }
+.panel, .category-card, .progress-card, .empty-state {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
+}
+.panel { padding: 22px; position: sticky; top: 18px; }
+.section-heading { display: flex; align-items: center; gap: 9px; margin: 0 0 18px; font-size: 17px; }
+.section-heading .step { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 9px; background: var(--sage-light); color: var(--sage-dark); font-size: 12px; }
+.field { margin-bottom: 16px; }
+.field label, .field-label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
+input[type="text"], input[type="number"], select {
+  width: 100%; border: 1px solid #dfe3d9; background: #fff; color: var(--ink);
+  border-radius: 11px; padding: 11px 12px; min-height: 44px;
+}
+input::placeholder { color: #a2a79f; }
+.helper { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.choice { position: relative; }
+.choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.choice span {
+  display: flex; justify-content: center; align-items: center; gap: 6px; text-align: center;
+  border: 1px solid var(--line); border-radius: 11px; padding: 10px 7px; min-height: 42px;
+  color: #5d655e; background: white; font-size: 13px; transition: background .15s, border-color .15s;
+}
+.choice input:checked + span { border-color: var(--sage); background: var(--sage-light); color: var(--sage-dark); font-weight: 700; }
+.choice input:focus-visible + span { outline: 3px solid #b5c8b3; outline-offset: 2px; }
+.choice input:disabled + span { opacity: .45; cursor: not-allowed; }
+.weather-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.weather-grid span { font-size: 12px; }
+.primary, .secondary, .text-button {
+  border: 0; border-radius: 12px; font-weight: 750; min-height: 44px; padding: 11px 15px;
+}
+.primary { width: 100%; color: white; background: var(--sage-dark); margin-top: 4px; }
+.primary:hover { background: #425847; }
+.secondary { color: var(--sage-dark); background: var(--sage-light); }
+.secondary:hover { background: #dce7da; }
+.text-button { color: var(--muted); background: transparent; padding: 7px 9px; min-height: 36px; font-size: 12px; }
+.text-button:hover { background: #f1f2ec; color: var(--ink); }
+.status-message { margin: 12px 0 0; color: var(--danger); font-size: 12px; min-height: 18px; }
+.results { min-width: 0; }
+.empty-state { padding: 40px 24px; text-align: center; border-style: dashed; box-shadow: none; }
+.empty-icon { font-size: 34px; margin-bottom: 12px; }
+.empty-state h2 { margin: 0 0 8px; font-size: 19px; }
+.empty-state p { margin: 0 auto; max-width: 360px; color: var(--muted); font-size: 13px; }
+.hidden { display: none !important; }
+.trip-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 15px; }
+.trip-top h2 { font-size: 22px; margin: 0 0 5px; overflow-wrap: anywhere; }
+.trip-meta { font-size: 12px; color: var(--muted); }
+.trip-actions { display: flex; gap: 7px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+.progress-card { padding: 18px 20px; margin-bottom: 15px; }
+.progress-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 10px; }
+.progress-head strong { font-size: 14px; }
+.percent { color: var(--sage-dark); font-size: 23px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.progress-track { width: 100%; height: 9px; border-radius: 20px; background: #edf0e9; overflow: hidden; }
+.progress-fill { height: 100%; width: 0; background: var(--sage); border-radius: inherit; transition: width .2s ease; }
+.progress-foot { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin-top: 10px; }
+.progress-foot strong { color: var(--ink); }
+.done-banner { padding: 12px 14px; border-radius: 12px; background: var(--sage-light); color: var(--sage-dark); font-size: 13px; margin-bottom: 15px; }
+.important-note { background: #f9f3e6; border: 1px solid #eee3cb; border-radius: 12px; padding: 12px 14px; margin-bottom: 15px; font-size: 12px; color: #6e5b35; }
+.important-note strong { display: block; margin-bottom: 3px; font-size: 13px; }
+.category-list { display: grid; gap: 13px; }
+.category-card { padding: 17px 18px; box-shadow: none; }
+.category-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.category-title { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 15px; }
+.category-emoji { display: grid; place-items: center; width: 34px; height: 34px; background: #f0f2eb; border-radius: 11px; font-size: 17px; }
+.count-pill { color: var(--muted); background: #f3f4ef; border-radius: 20px; padding: 4px 9px; font-size: 11px; white-space: nowrap; }
+.items { display: grid; gap: 3px; }
+.item-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 3px; border-bottom: 1px solid #f0f1eb; }
+.item-row:last-child { border-bottom: 0; }
+.item-check { appearance: none; flex: 0 0 19px; width: 19px; height: 19px; border: 1.5px solid #c8d0c4; border-radius: 6px; margin: 2px 0 0; background: white; cursor: pointer; display: grid; place-items: center; }
+.item-check:checked { background: var(--sage-dark); border-color: var(--sage-dark); }
+.item-check:checked::after { content: "✓"; color: white; font-size: 13px; font-weight: 800; }
+.item-content { flex: 1; min-width: 0; }
+.item-name { font-size: 13px; overflow-wrap: anywhere; }
+.item-row.is-done .item-name { color: #969c93; text-decoration: line-through; }
+.item-detail { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 4px; }
+.qty { font-size: 11px; color: var(--muted); }
+.important-tag { font-size: 10px; font-weight: 800; color: #9a5c24; background: #fbedd7; padding: 2px 6px; border-radius: 5px; }
+.item-delete { border: 0; background: transparent; color: #9ba198; padding: 3px 5px; font-size: 17px; line-height: 1; border-radius: 6px; }
+.item-delete:hover { color: var(--danger); background: #f9eae8; }
+.add-row { display: flex; gap: 8px; margin-top: 15px; }
+.add-row input { flex: 1; min-width: 0; }
+.add-row .secondary { white-space: nowrap; }
+.footer-note { text-align: center; color: #969b93; font-size: 11px; margin-top: 30px; }
+@media (max-width: 820px) {
+  .layout { grid-template-columns: 1fr; }
+  .panel { position: static; }
+  .form-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0 15px; }
+  .field.full { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .page { padding: 20px 14px 36px; }
+  header { margin-bottom: 18px; }
+  .local-note { display: none; }
+  .hero { margin-top: 18px; }
+  .panel { padding: 17px; border-radius: 16px; }
+  .form-columns { display: block; }
+  .trip-top { flex-direction: column; }
+  .trip-actions { justify-content: flex-start; }
+  .category-card { padding: 14px; }
+  .progress-card { padding: 15px; }
+  .weather-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">✓</div>
+      <div><div class="brand-name">Pack Smart</div><div class="brand-sub">出門不漏帶</div></div>
+    </div>
+    <div class="local-note">簡單整理，安心出發。</div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">PACK LIGHT, FEEL RIGHT</div>
+    <h1>把要帶的，<br>一次整理好。</h1>
+    <p>依照你的行程、活動與天氣，快速建立專屬行李清單。勾選進度會自動儲存，下次打開也能接著整理。</p>
+  </section>
+
+  <main class="layout">
+    <aside class="panel" aria-labelledby="settings-title">
+      <h2 class="section-heading" id="settings-title"><span class="step">01</span> 設定你的行程</h2>
+      <form id="trip-form" novalidate>
+        <div class="form-columns">
+          <div class="field full">
+            <label for="trip-name">行程名稱</label>
+            <input id="trip-name" type="text" maxlength="70" placeholder="例如：花蓮三天兩夜" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="trip-days">旅行天數</label>
+            <input id="trip-days" type="number" min="1" max="90" step="1" value="3" inputmode="numeric">
+            <div class="helper">1–90 天</div>
+          </div>
+          <div class="field">
+            <label for="trip-type">出遊類型</label>
+            <select id="trip-type">
+              <option value="travel">一般旅行</option>
+              <option value="camping">露營</option>
+              <option value="overnight">過夜／住朋友家</option>
+              <option value="business">商務出差</option>
+            </select>
+          </div>
+          <div class="field full">
+            <span class="field-label">活動安排（可複選）</span>
+            <div class="choice-grid">
+              <label class="choice"><input type="checkbox" name="activity" value="swim"><span>🏊 游泳</span></label>
+              <label class="choice"><input type="checkbox" name="activity" value="hike"><span>🥾 健行</span></label>
+              <label class="choice"><input type="checkbox" name="activity" value="formal"><span>👔 正式場合</span></label>
+              <label class="choice"><input type="checkbox" name="activity" value="workout"><span>🏃 運動</span></label>
+            </div>
+          </div>
+          <div class="field full">
+            <span class="field-label">預計天氣（可複選）</span>
+            <div class="choice-grid weather-grid">
+              <label class="choice"><input type="checkbox" name="weather" value="sunny"><span>☀️ 晴天</span></label>
+              <label class="choice"><input type="checkbox" name="weather" value="rainy"><span>🌧️ 雨天</span></label>
+              <label class="choice"><input type="checkbox" name="weather" value="cold"><span>🧣 寒冷</span></label>
+              <label class="choice"><input type="checkbox" name="weather" value="hot"><span>🌤️ 高溫</span></label>
+              <label class="choice"><input type="checkbox" name="weather" value="changeable"><span>🌦️ 多變</span></label>
+            </div>
+            <div class="helper">依目的地預報手動選擇即可，不會自動連線查天氣。</div>
+          </div>
+        </div>
+        <button class="primary" type="submit" id="generate-btn">產生行李清單　→</button>
+        <p class="status-message" id="form-message" role="alert" aria-live="polite"></p>
+      </form>
+    </aside>
+
+    <section class="results" aria-live="polite" aria-label="行李清單">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon" aria-hidden="true">🧳</div>
+        <h2>你的清單，準備好了嗎？</h2>
+        <p>先填寫左側行程資訊，再按下「產生行李清單」，我們就會依照你的需求整理打包項目。</p>
+      </div>
+      <div id="trip-results" class="hidden">
+        <div class="trip-top">
+          <div><h2 id="result-name"></h2><div class="trip-meta" id="result-meta"></div></div>
+          <div class="trip-actions">
+            <button type="button" class="text-button" id="export-btn">匯出文字</button>
+            <button type="button" class="text-button" id="clear-btn">清空勾選</button>
+          </div>
+        </div>
+        <div class="progress-card">
+          <div class="progress-head"><strong>打包進度</strong><span class="percent" id="percent">0%</span></div>
+          <div class="progress-track" id="progress-track" role="progressbar" aria-label="打包完成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="progress-foot"><span>已完成 <strong id="done-count">0</strong></span><span>尚未完成 <strong id="remaining-count">0</strong></span><span>總項目 <strong id="total-count">0</strong></span></div>
+        </div>
+        <div class="done-banner hidden" id="done-banner" role="status">🎉 全部打包完成！出發前再確認一次證件與交通資訊吧。</div>
+        <div class="important-note"><strong>★ 出發前重要確認</strong>證件、錢包、手機與必要藥品請務必依個人需求確認。藥品及證件等提醒不代表所有行程都適用，請自行核對。</div>
+        <div class="category-list" id="category-list"></div>
+      </div>
+    </section>
+  </main>
+  <div class="footer-note">Pack Smart · 你的清單只儲存在這台裝置的瀏覽器中</div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'packSmartTrip_v1';
+  const $ = (id) => document.getElementById(id);
+  const form = $('trip-form');
+  const message = $('form-message');
+  const emptyState = $('empty-state');
+  const results = $('trip-results');
+  const categoryList = $('category-list');
+
+  const TYPE_LABELS = {
+    travel: '一般旅行', camping: '露營', overnight: '過夜／住朋友家', business: '商務出差'
+  };
+  const WEATHER_LABELS = {
+    sunny: '晴天', rainy: '雨天', cold: '寒冷', hot: '高溫', changeable: '多變天氣'
+  };
+  const ACTIVITY_LABELS = { swim: '游泳', hike: '健行', formal: '正式場合', workout: '運動' };
+  const IMPORTANT_NAMES = new Set(['身分證／護照', '錢包', '手機', '必要藥品']);
+
+  function makeItem(name, qty = '', important = false) {
+    return { id: 'i_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36), name, qty, important, checked: false };
+  }
+  function category(name, emoji, items = []) { return { name, emoji, items }; }
+
+  function buildList(trip) {
+    const days = trip.days;
+    const clothes = Math.max(1, days);
+    const list = [
+      category('重要物品', '★', [
+        makeItem('身分證／護照', '依目的地確認', true),
+        makeItem('錢包', '含現金與卡片', true),
+        makeItem('手機', '含必要聯絡資訊', true),
+        makeItem('必要藥品', '依個人需求', true),
+        makeItem('健保卡／保險資料'),
+        makeItem('交通票券／訂房資訊'),
+        makeItem('鑰匙'),
+      ]),
+      category('衣物', '👕', [
+        makeItem('上衣', `${clothes + 1} 件（每天 1 件，另備 1 件）`),
+        makeItem('下身', `${Math.max(1, Math.ceil(days / 2))} 件（可重複搭配）`),
+        makeItem('內衣褲', `${days + 1} 套（每天 1 套，另備 1 套）`),
+        makeItem('襪子', `${days + 1} 雙（每天 1 雙，另備 1 雙）`),
+        makeItem('睡衣', `${Math.min(days, Math.max(1, Math.ceil(days / 2)))} 套`),
+        makeItem('舒適鞋款', '1 雙'),
+      ]),
+      category('盥洗與保養', '🧴', [
+        makeItem('牙刷、牙膏'),
+        makeItem('洗面乳、保養品'),
+        makeItem('洗髮／沐浴用品', '可用旅行分裝瓶'),
+        makeItem('梳子、髮圈'),
+        makeItem('毛巾', '住宿未提供時'),
+        makeItem('防曬用品'),
+        makeItem('衛生用品'),
+      ]),
+      category('電子用品', '🔌', [
+        makeItem('充電器'),
+        makeItem('充電線'),
+        makeItem('行動電源'),
+        makeItem('耳機'),
+      ]),
+    ];
+
+    if (trip.type === 'camping') {
+      list.push(category('露營裝備', '⛺', [
+        makeItem('帳篷與營釘', '確認是否自備'),
+        makeItem('睡袋／睡墊'),
+        makeItem('頭燈／手電筒'),
+        makeItem('防潮墊'),
+        makeItem('保暖外套'),
+        makeItem('餐具／水壺'),
+        makeItem('垃圾袋'),
+        makeItem('濕紙巾／衛生紙'),
+        makeItem('防蚊用品'),
+      ]));
+    }
+    if (trip.type === 'business') {
+      list.push(category('商務用品', '💼', [
+        makeItem('筆電與電源'),
+        makeItem('工作文件／簡報'),
+        makeItem('名片'),
+        makeItem('筆記本與筆'),
+        makeItem('會議所需配件'),
+      ]));
+    }
+    if (trip.type === 'overnight') {
+      list.push(category('過夜用品', '🌙', [
+        makeItem('替換衣物'),
+        makeItem('睡衣'),
+        makeItem('個人盥洗用品'),
+        makeItem('室內拖鞋', '視住宿環境'),
+      ]));
+    }
+
+    if (trip.activities.includes('swim')) {
+      list.push(category('游泳用品', '🏊', [
+        makeItem('泳衣／泳褲'), makeItem('泳帽／泳鏡', '依場地規定'),
+        makeItem('防水袋'), makeItem('替換衣物'), makeItem('夾腳拖／涼鞋'),
+      ]));
+    }
+    if (trip.activities.includes('hike')) {
+      list.push(category('健行用品', '🥾', [
+        makeItem('抓地力良好的鞋子'), makeItem('水壺／飲水'),
+        makeItem('輕便背包'), makeItem('防曬帽'),
+        makeItem('簡易急救用品'), makeItem('登山杖', '依路線需求'),
+      ]));
+    }
+    if (trip.activities.includes('formal')) {
+      list.push(category('正式場合', '👔', [
+        makeItem('正式服裝', `${Math.max(1, trip.formalDays || 1)} 套`),
+        makeItem('正式鞋款'), makeItem('皮帶／配件'),
+        makeItem('簡單整裝用品'),
+      ]));
+    }
+    if (trip.activities.includes('workout')) {
+      list.push(category('運動用品', '🏃', [
+        makeItem('運動服', `${Math.max(1, Math.min(days, 2))} 套（視運動次數）`),
+        makeItem('運動鞋'), makeItem('運動毛巾'), makeItem('水壺'),
+      ]));
+    }
+
+    if (trip.weather.includes('rainy') || trip.weather.includes('changeable')) {
+      list.push(category('雨天備品', '🌧️', [
+        makeItem('折疊傘'), makeItem('輕便雨衣'),
+        makeItem('防水鞋／鞋套', '視行程需求'), makeItem('防水收納袋'),
+      ]));
+    }
+    if (trip.weather.includes('cold')) {
+      list.push(category('寒冷天氣', '🧣', [
+        makeItem('保暖外套'), makeItem('發熱衣／保暖內層'),
+        makeItem('圍巾、帽子'), makeItem('手套', '依氣溫'),
+      ]));
+    }
+    if (trip.weather.includes('hot') || trip.weather.includes('sunny')) {
+      list.push(category('晴熱天氣', '☀️', [
+        makeItem('防曬乳'), makeItem('太陽眼鏡'),
+        makeItem('遮陽帽'), makeItem('輕薄透氣衣物'),
+        makeItem('補水水壺'),
+      ]));
+    }
+    if (trip.weather.includes('changeable')) {
+      list.push(category('多變天氣備品', '🌦️', [
+        makeItem('可分層穿搭的外套'), makeItem('備用襪子'),
+      ]));
+    }
+
+    return list;
+  }
+
+  function getFormData() {
+    const name = $('trip-name').value.trim();
+    const daysRaw = $('trip-days').value.trim();
+    const days = Number(daysRaw);
+    if (!name) return { error: '請先填寫行程名稱。' };
+    if (!daysRaw || !Number.isInteger(days) || days < 1 || days > 90) {
+      return { error: '旅行天數請輸入 1 到 90 的整數。' };
+    }
+    return {
+      trip: {
+        name, days, type: $('trip-type').value,
+        activities: [...form.querySelectorAll('input[name="activity"]:checked')].map(el => el.value),
+        weather: [...form.querySelectorAll('input[name="weather"]:checked')].map(el => el.value),
+        categories: []
+      }
+    };
+  }
+
+  function saveState() {
+    if (!state) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      message.textContent = '無法儲存到瀏覽器，可能是儲存空間或瀏覽器設定所致。';
+    }
+  }
+
+  let state = null;
+
+  function updateProgress() {
+    if (!state) return;
+    const all = state.categories.flatMap(cat => cat.items);
+    const done = all.filter(item => item.checked).length;
+    const total = all.length;
+    const remaining = total - done;
+    const percent = total === 0 ? 0 : Math.round(done / total * 100);
+    $('percent').textContent = `${percent}%`;
+    $('done-count').textContent = done;
+    $('remaining-count').textContent = remaining;
+    $('total-count').textContent = total;
+    $('progress-fill').style.width = `${percent}%`;
+    $('progress-track').setAttribute('aria-valuenow', String(percent));
+    $('done-banner').classList.toggle('hidden', total === 0 || done !== total);
+    state.categories.forEach((cat, ci) => {
+      const count = cat.items.filter(item => item.checked).length;
+      const pill = document.querySelector(`[data-category-count="${ci}"]`);
+      if (pill) pill.textContent = `${count}/${cat.items.length} 已完成`;
+    });
+  }
+
+  function render() {
+    if (!state) {
+      emptyState.classList.remove('hidden');
+      results.classList.add('hidden');
+      return;
+    }
+    emptyState.classList.add('hidden');
+    results.classList.remove('hidden');
+    $('result-name').textContent = state.name;
+    const activities = state.activities.map(v => ACTIVITY_LABELS[v]).join('、') || '未指定活動';
+    const weather = state.weather.map(v => WEATHER_LABELS[v]).join('、') || '未指定天氣';
+    $('result-meta').textContent = `${state.days} 天 · ${TYPE_LABELS[state.type] || TYPE_LABELS.travel} · ${activities} · ${weather}`;
+
+    categoryList.replaceChildren();
+    state.categories.forEach((cat, ci) => {
+      const card = document.createElement('article');
+      card.className = 'category-card';
+      const head = document.createElement('div');
+      head.className = 'category-head';
+      const title = document.createElement('div');
+      title.className = 'category-title';
+      const emoji = document.createElement('span');
+      emoji.className = 'category-emoji';
+      emoji.textContent = cat.emoji;
+      const titleText = document.createElement('span');
+      titleText.textContent = cat.name;
+      title.append(emoji, titleText);
+      const count = document.createElement('span');
+      count.className = 'count-pill';
+      count.dataset.categoryCount = String(ci);
+      count.textContent = `0/${cat.items.length} 已完成`;
+      head.append(title, count);
+      const items = document.createElement('div');
+      items.className = 'items';
+      cat.items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = `item-row${item.checked ? ' is-done' : ''}`;
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'item-check';
+        checkbox.checked = Boolean(item.checked);
+        checkbox.setAttribute('aria-label', `已打包：${item.name}`);
+        checkbox.addEventListener('change', () => {
+          item.checked = checkbox.checked;
+          row.classList.toggle('is-done', item.checked);
+          saveState();
+          updateProgress();
+        });
+        const content = document.createElement('div');
+        content.className = 'item-content';
+        const name = document.createElement('div');
+        name.className = 'item-name';
+        name.textContent = item.name;
+        content.append(name);
+        const detail = document.createElement('div');
+        detail.className = 'item-detail';
+        if (item.qty) {
+          const qty = document.createElement('span');
+          qty.className = 'qty';
+          qty.textContent = item.qty;
+          detail.append(qty);
+        }
+        if (item.important) {
+          const tag = document.createElement('span');
+          tag.className = 'important-tag';
+          tag.textContent = '重要物品';
+          detail.append(tag);
+        }
+        if (detail.childNodes.length) content.append(detail);
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'item-delete';
+        del.textContent = '×';
+        del.title = `刪除「${item.name}」`;
+        del.setAttribute('aria-label', `刪除${item.name}`);
+        del.addEventListener('click', () => {
+          if (!confirm(`確定要刪除「${item.name}」嗎？`)) return;
+          cat.items = cat.items.filter(entry => entry.id !== item.id);
+          saveState();
+          render();
+        });
+        row.append(checkbox, content, del);
+        items.append(row);
+      });
+      card.append(head, items);
+
+      const addRow = document.createElement('form');
+      addRow.className = 'add-row';
+      addRow.setAttribute('aria-label', `新增至${cat.name}`);
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 100;
+      input.placeholder = `新增至「${cat.name}」`;
+      input.setAttribute('aria-label', `新增至${cat.name}的物品名稱`);
+      const addBtn = document.createElement('button');
+      addBtn.type = 'submit';
+      addBtn.className = 'secondary';
+      addBtn.textContent = '＋ 新增';
+      addRow.append(input, addBtn);
+      addRow.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const name = input.value.trim();
+        if (!name) { input.focus(); return; }
+        if (cat.items.some(item => item.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+          alert('這個分類已經有同名物品囉。');
+          input.focus();
+          return;
+        }
+        cat.items.push(makeItem(name));
+        saveState();
+        render();
+      });
+      card.append(addRow);
+      categoryList.append(card);
+    });
+    updateProgress();
+  }
+
+  function restoreForm(trip) {
+    $('trip-name').value = trip.name || '';
+    $('trip-days').value = String(trip.days || 3);
+    $('trip-type').value = trip.type || 'travel';
+    form.querySelectorAll('input[name="activity"]').forEach(el => { el.checked = (trip.activities || []).includes(el.value); });
+    form.querySelectorAll('input[name="weather"]').forEach(el => { el.checked = (trip.weather || []).includes(el.value); });
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    message.textContent = '';
+    const data = getFormData();
+    if (data.error) {
+      message.textContent = data.error;
+      return;
+    }
+    if (state) {
+      const checkedCount = state.categories.flatMap(cat => cat.items).filter(item => item.checked).length;
+      const total = state.categories.reduce((sum, cat) => sum + cat.items.length, 0);
+      const changed = state.name !== data.trip.name || state.days !== data.trip.days || state.type !== data.trip.type ||
+        JSON.stringify(state.activities) !== JSON.stringify(data.trip.activities) ||
+        JSON.stringify(state.weather) !== JSON.stringify(data.trip.weather);
+      if (changed && !confirm(`重新產生清單會取代目前「${state.name}」的清單與勾選紀錄（${checkedCount}/${total} 項已完成）。要繼續嗎？`)) return;
+      if (!changed && !confirm('重新產生會重設目前清單的勾選狀態與自訂項目。確定要繼續嗎？')) return;
+    }
+    const trip = data.trip;
+    state = {
+      ...trip,
+      categories: buildList(trip),
+      createdAt: new Date().toISOString()
+    };
+    saveState();
+    render();
+    if (!results.classList.contains('hidden')) {
+      $('result-name').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  $('clear-btn').addEventListener('click', () => {
+    if (!state) return;
+    if (!confirm('要取消所有物品的勾選嗎？這不會刪除你的自訂物品。')) return;
+    state.categories.forEach(cat => cat.items.forEach(item => { item.checked = false; }));
+    saveState();
+    render();
+  });
+
+  $('export-btn').addEventListener('click', () => {
+    if (!state) return;
+    const lines = [
+      `Pack Smart｜${state.name}`,
+      `${state.days} 天｜${TYPE_LABELS[state.type] || TYPE_LABELS.travel}`,
+      `活動：${state.activities.map(v => ACTIVITY_LABELS[v]).join('、') || '未指定'}`,
+      `天氣：${state.weather.map(v => WEATHER_LABELS[v]).join('、') || '未指定'}`,
+      ''
+    ];
+    state.categories.forEach(cat => {
+      lines.push(`【${cat.name}】`);
+      if (!cat.items.length) lines.push('（此分類目前沒有物品）');
+      cat.items.forEach(item => lines.push(`${item.checked ? '[✓]' : '[ ]'} ${item.name}${item.qty ? ' — ' + item.qty : ''}${item.important ? ' ★重要' : ''}`));
+      lines.push('');
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${state.name.replace(/[\\/:*?"<>|]/g, '_') || 'pack-smart'}-行李清單.txt`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  function loadSavedState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (!saved || typeof saved.name !== 'string' || !Number.isInteger(saved.days) ||
+          !Array.isArray(saved.categories) || !saved.categories.every(cat =>
+            cat && typeof cat.name === 'string' && Array.isArray(cat.items) &&
+            cat.items.every(item => item && typeof item.id === 'string' && typeof item.name === 'string')
+          )) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      state = {
+        name: saved.name,
+        days: saved.days,
+        type: TYPE_LABELS[saved.type] ? saved.type : 'travel',
+        activities: Array.isArray(saved.activities) ? saved.activities.filter(v => ACTIVITY_LABELS[v]) : [],
+        weather: Array.isArray(saved.weather) ? saved.weather.filter(v => WEATHER_LABELS[v]) : [],
+        categories: saved.categories.map(cat => ({
+          name: cat.name, emoji: typeof cat.emoji === 'string' ? cat.emoji : '•',
+          items: cat.items.map(item => ({
+            id: item.id, name: item.name, qty: typeof item.qty === 'string' ? item.qty : '',
+            important: Boolean(item.important), checked: Boolean(item.checked)
+          }))
+        })),
+        createdAt: saved.createdAt || ''
+      };
+      restoreForm(state);
+      render();
+    } catch (err) {
+      message.textContent = '讀取上次行程時發生問題；你可以重新產生一份清單。';
+    }
+  }
+
+  loadSavedState();
+})();
+</script>
+</body>
+</html>
